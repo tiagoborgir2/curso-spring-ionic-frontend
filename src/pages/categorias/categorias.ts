@@ -16,7 +16,7 @@ export class CategoriasPage {
   items: CategoriaDTO[];
 
   constructor(
-    public navCtrl: NavController, 
+    public navCtrl: NavController,
     public navParams: NavParams,
     public categoriaService: CategoriaService ) {
   }
@@ -29,4 +29,7 @@ export class CategoriasPage {
       error => {});
   }
 
+  showProdutos() {
+    this.navCtrl.push('ProdutosPage');
+  }
 }
