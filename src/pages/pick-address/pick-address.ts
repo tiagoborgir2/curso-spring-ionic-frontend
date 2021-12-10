@@ -1,8 +1,11 @@
+import { PedidoDTO } from './../../models/pedido.dto';
 import { EnderecoDTO } from './../../models/endereco.dto';
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { StorageService } from '../../services/storage.services';
 import { ClienteService } from '../../services/domain/cliente.service';
+import { CartService } from '../../services/domain/cart.service';
+import { identifierModuleUrl } from '@angular/compiler';
 
 @IonicPage()
 @Component({
@@ -12,12 +15,14 @@ import { ClienteService } from '../../services/domain/cliente.service';
 export class PickAddressPage {
 
 items : EnderecoDTO[];
+pedido : PedidoDTO;
 
   constructor(
-    public navCtrl: NavController,
-    public navParams: NavParams,
+    public navCtrl : NavController,
+    public navParams : NavParams,
     public storage : StorageService,
-    public clienteService : ClienteService) {
+    public clienteService : ClienteService,
+    public cartService : CartService) {
   }
 
   ionViewDidLoad() {
@@ -26,6 +31,15 @@ items : EnderecoDTO[];
       this.clienteService.findByEmail(localUser.email)
         .subscribe(response => {
           this.items = response['enderecos'];
+
+          let cart = this.cartService.getCart();
+
+          this.pedido = {
+            cliente: {id: response['id']},
+            enderecoDeEntrega: null,
+            pagamento: null,
+            itens : cart.items.map(x => {return {quantidade: x.quantidade, produto: {id: x.produto.id}}})
+          }
         },
         error => {
           if (error.status == 403) {
@@ -36,6 +50,11 @@ items : EnderecoDTO[];
       else {
         this.navCtrl.setRoot('HomePage');
       }
+  }
+
+  nextPage(item : EnderecoDTO) {
+    this.pedido.enderecoDeEntrega = {id : item.id};
+    console.log(this.pedido);
   }
 
 }
